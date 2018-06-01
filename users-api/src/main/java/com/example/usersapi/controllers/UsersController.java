@@ -6,9 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import javax.ws.rs.GET;
+
 
 @RestController
 public class UsersController {
@@ -16,6 +15,20 @@ public class UsersController {
   //Ask spring to get dependency injection
   @Autowired
   private UserRepository userRepository;
+
+//  User findByEmailAddress(String email);
+//
+//  @RequestMapping(value = "/users/find", method = RequestMethod.GET)
+//  @ResponseBody
+//  public User findByUsername(@RequestParam("username") String username) {
+//    return userRepository.findByUsername(username);
+//  }
+
+
+  @GetMapping("/find/{username}")
+  public User findByUsername(@PathVariable String username) {
+    return userRepository.findByUsername(username);
+  }
 
   @GetMapping("/")
   public Iterable<User> findAllUsers() {
@@ -28,10 +41,11 @@ public class UsersController {
     return userRepository.findOne(userId);
   }
 
-  //Delete a user by ID
+  //Delete a user by ID - added the line User userFromDb... to fix
   @DeleteMapping("/{userId}")
   public HttpStatus deleteUserById(@PathVariable Long userId) {
-    userRepository.delete(userId);
+    User userFromDb = userRepository.findOne(userId);
+    userRepository.delete(userFromDb);
     return HttpStatus.OK;
   }
 
@@ -47,7 +61,7 @@ public class UsersController {
 
     User userFromDb = userRepository.findOne(userId);
 
-    userFromDb.setEmail(userRequest.getEmail());
+    userFromDb.setUsername(userRequest.getUsername());
     userFromDb.setPassword(userRequest.getPassword());
     userFromDb.setFilters(userRequest.getFilters());
 //    userFromDb.setComments(userRequest.getComments());
